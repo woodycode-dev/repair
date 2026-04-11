@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.trade.mapper.TradeOrderMapper">
+
+    <select id="findAll" resultType="com.gobb.repair.domain.trade.entity.TradeOrder">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            CANCEL_DATE,
+            USE_BIT,
+            PRODUCT_BIT,
+            FROM_REPAIR_AGENT,
+            FROM_REPAIR_CLIENT,
+            TO_REPAIR_AGENT,
+            TO_REPAIR_CLIENT,
+            ORDER_NO,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            STATE_TYPE,
+            SUMMARY,
+            TRADE_TYPE,
+            ITEM_UNIT,
+            MEMO
+        FROM TR_ORDER
+        WHERE CANCEL_BIT = 'N'
+          AND USE_BIT = 'Y'
+        ORDER BY SERIAL_NUMBER DESC
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.gobb.repair.domain.trade.entity.TradeOrder">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            CANCEL_DATE,
+            USE_BIT,
+            PRODUCT_BIT,
+            FROM_REPAIR_AGENT,
+            FROM_REPAIR_CLIENT,
+            TO_REPAIR_AGENT,
+            TO_REPAIR_CLIENT,
+            ORDER_NO,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            STATE_TYPE,
+            SUMMARY,
+            TRADE_TYPE,
+            ITEM_UNIT,
+            MEMO
+        FROM TR_ORDER
+        WHERE CANCEL_BIT = 'N'
+          AND SERIAL_NUMBER = #{serialNumber}
+    </select>
+
+    <insert id="insert" parameterType="com.gobb.repair.domain.trade.entity.TradeOrder" useGeneratedKeys="true" keyProperty="serialNumber">
+        INSERT INTO TR_ORDER (
+            REGIST_DATE,
+            REGIST_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            PRODUCT_BIT,
+            FROM_REPAIR_AGENT,
+            FROM_REPAIR_CLIENT,
+            TO_REPAIR_AGENT,
+            TO_REPAIR_CLIENT,
+            ORDER_NO,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            STATE_TYPE,
+            SUMMARY,
+            TRADE_TYPE,
+            ITEM_UNIT,
+            MEMO
+        ) VALUES (
+                     NOW(),
+                     #{registIp},
+                     'N',
+                     '00',
+                     #{useBit},
+                     #{productBit},
+                     #{fromRepairAgent},
+                     #{fromRepairClient},
+                     #{toRepairAgent},
+                     #{toRepairClient},
+                     #{orderNo},
+                     NOW(),
+                     #{orderCost},
+                     #{buyCost},
+                     '10',
+                     #{summary},
+                     #{tradeType},
+                     #{itemUnit},
+                     #{memo}
+                 )
+    </insert>
+
+    <update id="updateStatus" parameterType="com.gobb.repair.domain.trade.entity.TradeOrder">
+        UPDATE TR_ORDER
+        SET
+            STATE_TYPE  = #{stateType},
+            MODIFY_DATE = NOW(),
+            MODIFY_IP   = #{modifyIp}
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE TR_ORDER
+        SET
+            CANCEL_BIT  = 'Y',
+            CANCEL_DATE = NOW()
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+</mapper>

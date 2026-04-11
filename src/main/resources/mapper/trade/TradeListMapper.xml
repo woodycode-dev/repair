@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.trade.mapper.TradeListMapper">
+
+    <select id="findAllByDetailId" parameterType="long" resultType="com.gobb.repair.domain.trade.entity.TradeList">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            CANCEL_DATE,
+            USE_BIT,
+            PRODUCT_BIT,
+            REPAIR_AGENT_SERIAL,
+            REPAIR_CLIENT_SERIAL,
+            LEASE_CONTRACT_SERIAL,
+            REPAIR_CHECK_ITEM_SERIAL,
+            COMMON_TRADE_ORDER_SERIAL,
+            COMMON_TRADE_DETAIL_SERIAL,
+            ORDER_NO,
+            TRADE_BIT,
+            TRADE_DATE,
+            TRADE_COST,
+            BUY_COST,
+            ITEM_UNIT,
+            TRADE_ITEM_TYPE,
+            TRADE_ITEM_USE,
+            REPAIR_COMPANY_SERIAL,
+            COMMON_CUSTOMER_SERIAL,
+            MEMO
+        FROM TR_ORDER_LIST
+        WHERE CANCEL_BIT = 'N'
+          AND COMMON_TRADE_DETAIL_SERIAL = #{commonTradeDetailSerial}
+        ORDER BY SERIAL_NUMBER DESC
+    </select>
+
+    <insert id="insert" parameterType="com.gobb.repair.domain.trade.entity.TradeList" useGeneratedKeys="true" keyProperty="serialNumber">
+        INSERT INTO TR_ORDER_LIST (
+            REGIST_DATE,
+            REGIST_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            PRODUCT_BIT,
+            REPAIR_AGENT_SERIAL,
+            REPAIR_CLIENT_SERIAL,
+            COMMON_TRADE_ORDER_SERIAL,
+            COMMON_TRADE_DETAIL_SERIAL,
+            ORDER_NO,
+            TRADE_BIT,
+            TRADE_DATE,
+            TRADE_COST,
+            BUY_COST,
+            ITEM_UNIT,
+            TRADE_ITEM_TYPE,
+            TRADE_ITEM_USE,
+            MEMO
+        ) VALUES (
+                     NOW(),
+                     #{registIp},
+                     'N',
+                     '00',
+                     #{useBit},
+                     #{productBit},
+                     #{repairAgentSerial},
+                     #{repairClientSerial},
+                     #{commonTradeOrderSerial},
+                     #{commonTradeDetailSerial},
+                     #{orderNo},
+                     #{tradeBit},
+                     NOW(),
+                     #{tradeCost},
+                     #{buyCost},
+                     #{itemUnit},
+                     #{tradeItemType},
+                     #{tradeItemUse},
+                     #{memo}
+                 )
+    </insert>
+
+    <update id="delete" parameterType="long">
+        UPDATE TR_ORDER_LIST
+        SET
+            CANCEL_BIT  = 'Y',
+            CANCEL_DATE = NOW()
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+</mapper>

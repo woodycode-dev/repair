@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.trade.mapper.TradeDetailMapper">
+
+    <select id="findAllByOrderId" parameterType="long" resultType="com.gobb.repair.domain.trade.entity.TradeDetail">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            CANCEL_DATE,
+            USE_BIT,
+            PRODUCT_BIT,
+            PRODUCT_SERIAL,
+            COMMON_TRADE_ORDER_SERIAL,
+            ORDER_NO,
+            STATE_TYPE,
+            TRADE_ITEM_TYPE,
+            ITEM_UNIT,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            MEMO
+        FROM TR_ORDER_DTL
+        WHERE CANCEL_BIT = 'N'
+          AND COMMON_TRADE_ORDER_SERIAL = #{commonTradeOrderSerial}
+        ORDER BY SERIAL_NUMBER
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.gobb.repair.domain.trade.entity.TradeDetail">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            CANCEL_DATE,
+            USE_BIT,
+            PRODUCT_BIT,
+            PRODUCT_SERIAL,
+            COMMON_TRADE_ORDER_SERIAL,
+            ORDER_NO,
+            STATE_TYPE,
+            TRADE_ITEM_TYPE,
+            ITEM_UNIT,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            MEMO
+        FROM TR_ORDER_DTL
+        WHERE CANCEL_BIT = 'N'
+          AND SERIAL_NUMBER = #{serialNumber}
+    </select>
+
+    <select id="findAllStateByOrderId" parameterType="long" resultType="string">
+        SELECT DISTINCT STATE_TYPE
+        FROM TR_ORDER_DTL
+        WHERE CANCEL_BIT = 'N'
+          AND COMMON_TRADE_ORDER_SERIAL = #{commonTradeOrderSerial}
+    </select>
+
+    <insert id="insert" parameterType="com.gobb.repair.domain.trade.entity.TradeDetail" useGeneratedKeys="true" keyProperty="serialNumber">
+        INSERT INTO TR_ORDER_DTL (
+            REGIST_DATE,
+            REGIST_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            PRODUCT_BIT,
+            PRODUCT_SERIAL,
+            COMMON_TRADE_ORDER_SERIAL,
+            ORDER_NO,
+            STATE_TYPE,
+            TRADE_ITEM_TYPE,
+            ITEM_UNIT,
+            ORDER_DATE,
+            ORDER_COST,
+            BUY_COST,
+            MEMO
+        ) VALUES (
+                     NOW(),
+                     #{registIp},
+                     'N',
+                     '00',
+                     #{useBit},
+                     #{productBit},
+                     #{productSerial},
+                     #{commonTradeOrderSerial},
+                     #{orderNo},
+                     '10',
+                     #{tradeItemType},
+                     #{itemUnit},
+                     NOW(),
+                     #{orderCost},
+                     #{buyCost},
+                     #{memo}
+                 )
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE TR_ORDER_DTL
+        SET
+            STATE_TYPE  = #{stateType},
+            MODIFY_DATE = NOW(),
+            MODIFY_IP   = #{modifyIp}
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+    <update id="updateStatusByOrderId">
+        UPDATE TR_ORDER_DTL
+        SET
+            STATE_TYPE  = #{stateType},
+            MODIFY_DATE = NOW(),
+            MODIFY_IP   = #{modifyIp}
+        WHERE CANCEL_BIT = 'N'
+          AND COMMON_TRADE_ORDER_SERIAL = #{commonTradeOrderSerial}
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE TR_ORDER_DTL
+        SET
+            CANCEL_BIT  = 'Y',
+            CANCEL_DATE = NOW()
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.member.mapper.MemberMapper">
+
+    <select id="findByUserId" parameterType="string" resultType="com.gobb.repair.domain.member.entity.Member">
+        SELECT
+            SERIAL_NUMBER,
+            USER_ID,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            SERVICE_TYPE,
+            AGENT_SERIAL,
+            CLIENT_SERIAL,
+            USER_TYPE,
+            USER_NAME,
+            PASSWORD,
+            EMAIL,
+            TEL_NO,
+            REFRESH_TOKEN,
+            REFRESH_TOKEN_EXPIRE,
+            VISIT,
+            LOGIN_DATE,
+            PASSWORD_DATE,
+            MEMO
+        FROM CM_MEMBERSHIP
+        WHERE CANCEL_BIT = 'N'
+          AND USE_BIT = 'Y'
+          AND USER_ID = #{userId}
+    </select>
+
+    <select id="findByRefreshToken" parameterType="string" resultType="com.gobb.repair.domain.member.entity.Member">
+        SELECT
+            SERIAL_NUMBER,
+            USER_ID,
+            REFRESH_TOKEN,
+            REFRESH_TOKEN_EXPIRE,
+            USER_TYPE,
+            SERVICE_TYPE
+        FROM CM_MEMBERSHIP
+        WHERE CANCEL_BIT = 'N'
+          AND USE_BIT = 'Y'
+          AND REFRESH_TOKEN = #{refreshToken}
+    </select>
+
+    <update id="updateRefreshToken" parameterType="com.gobb.repair.domain.member.entity.Member">
+        UPDATE CM_MEMBERSHIP
+        SET
+            REFRESH_TOKEN        = #{refreshToken},
+            REFRESH_TOKEN_EXPIRE = #{refreshTokenExpire}
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <update id="updateLoginInfo" parameterType="com.gobb.repair.domain.member.entity.Member">
+        UPDATE CM_MEMBERSHIP
+        SET
+            VISIT      = IFNULL(VISIT, 0) + 1,
+            LOGIN_DATE = NOW()
+        WHERE USER_ID = #{userId}
+    </update>
+
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.item.mapper.BikeItemCdMapper">
+
+    <select id="findAll" resultType="com.gobb.repair.domain.item.entity.BikeItemCd">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            CODE_TYPE,
+            SUBJECT,
+            MEMO
+        FROM CM_BIKE_ITEM_CD
+        WHERE CANCEL_BIT = 'N'
+          AND USE_BIT = 'Y'
+        ORDER BY SERIAL_NUMBER
+    </select>
+
+    <select id="findById" parameterType="long" resultType="com.gobb.repair.domain.item.entity.BikeItemCd">
+        SELECT
+            SERIAL_NUMBER,
+            REGIST_DATE,
+            REGIST_IP,
+            MODIFY_DATE,
+            MODIFY_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            CODE_TYPE,
+            SUBJECT,
+            MEMO
+        FROM CM_BIKE_ITEM_CD
+        WHERE CANCEL_BIT = 'N'
+          AND SERIAL_NUMBER = #{serialNumber}
+    </select>
+
+    <insert id="insert" parameterType="com.gobb.repair.domain.item.entity.BikeItemCd" useGeneratedKeys="true" keyProperty="serialNumber">
+        INSERT INTO CM_BIKE_ITEM_CD (
+            REGIST_DATE,
+            REGIST_IP,
+            CANCEL_BIT,
+            CANCEL_REASON,
+            USE_BIT,
+            CODE_TYPE,
+            SUBJECT,
+            MEMO
+        ) VALUES (
+                     NOW(),
+                     #{registIp},
+                     'N',
+                     '00',
+                     #{useBit},
+                     #{codeType},
+                     #{subject},
+                     #{memo}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.gobb.repair.domain.item.entity.BikeItemCd">
+        UPDATE CM_BIKE_ITEM_CD
+        SET
+            MODIFY_DATE = NOW(),
+            MODIFY_IP   = #{modifyIp},
+            USE_BIT     = #{useBit},
+            CODE_TYPE   = #{codeType},
+            SUBJECT     = #{subject},
+            MEMO        = #{memo}
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE CM_BIKE_ITEM_CD
+        SET
+            CANCEL_BIT    = 'Y',
+            CANCEL_DATE   = NOW()
+        WHERE SERIAL_NUMBER = #{serialNumber}
+    </update>
+
+</mapper>

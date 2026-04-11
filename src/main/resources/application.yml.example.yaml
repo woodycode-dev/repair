@@ -1,0 +1,26 @@
+spring:
+        datasource:
+        url: jdbc:mysql://localhost:3306/{DB명}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+        username: {username}
+        password: {password}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+        mybatis:
+        mapper-locations: classpath:mapper/**/*.xml
+        configuration:
+        map-underscore-to-camel-case: true
+        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+        server:
+        port: 8080
+
+        jwt:
+        secret: {32자리 이상 secret key}
+        expiration: 3600000
+        refresh-expiration: 7
+
+        springdoc:
+        swagger-ui:
+        path: /swagger-ui.html
+        api-docs:
+        path: /v3/api-docs

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gobb.repair.domain.member.mapper.MemberLogMapper">
+
+    <insert id="insert" parameterType="com.gobb.repair.domain.member.entity.MemberLog">
+        INSERT INTO CM_MEMBERSHIP_LOG (
+            REGIST_DATE,
+            REGIST_IP,
+            MEMBERSHIP_SERIAL,
+            OS,
+            BROWSER,
+            VERSION,
+            AGENT,
+            STATE_BIT
+        ) VALUES (
+                     NOW(),
+                     #{registIp},
+                     #{membershipSerial},
+                     #{os},
+                     #{browser},
+                     #{version},
+                     #{agent},
+                     #{stateBit}
+                 )
+    </insert>
+
+</mapper>
