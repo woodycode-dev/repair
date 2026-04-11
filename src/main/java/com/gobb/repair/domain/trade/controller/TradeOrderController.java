@@ -1,6 +1,7 @@
 package com.gobb.repair.domain.trade.controller;
 
 import com.gobb.repair.common.response.ApiResponse;
+import com.gobb.repair.domain.trade.dto.TradeOrderRequest;
 import com.gobb.repair.domain.trade.entity.TradeOrder;
 import com.gobb.repair.domain.trade.service.TradeOrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "거래주문", description = "거래주문 관련 API (TR_ORDER)")
+@Tag(name = "3-1. 거래주문", description = "거래주문 관련 API (TR_ORDER)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/trade-order")
@@ -31,22 +32,11 @@ public class TradeOrderController {
         return ApiResponse.ok(tradeOrderService.findById(serialNumber));
     }
 
-    @Operation(summary = "주문 등록")
+    @Operation(summary = "주문 등록", description = "주문서 + 주문항목 일괄 등록")
     @PostMapping
-    public ApiResponse<Void> insert(@RequestBody TradeOrder tradeOrder) {
-        tradeOrderService.insert(tradeOrder);
+    public ApiResponse<Void> insert(@RequestBody TradeOrderRequest request) {
+        tradeOrderService.insert(request);
         return ApiResponse.ok("등록되었습니다.", null);
-    }
-
-    @Operation(summary = "주문 일괄 상태 변경", description = "같은 주문번호의 detail 상태가 모두 동일할 때만 처리 가능")
-    @PutMapping("/{serialNumber}/status")
-    public ApiResponse<Void> updateStatus(
-            @PathVariable Long serialNumber,
-            @RequestBody Map<String, String> body) {
-        String stateType = body.get("stateType");
-        String modifyIp = body.getOrDefault("modifyIp", "127.0.0.1");
-        tradeOrderService.updateStatus(serialNumber, stateType, modifyIp);
-        return ApiResponse.ok("상태가 변경되었습니다.", null);
     }
 
     @Operation(summary = "주문 삭제")

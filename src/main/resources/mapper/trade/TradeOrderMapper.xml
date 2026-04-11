@@ -109,14 +109,11 @@
                  )
     </insert>
 
-    <update id="updateStatus" parameterType="com.gobb.repair.domain.trade.entity.TradeOrder">
-        UPDATE TR_ORDER
-        SET
-            STATE_TYPE  = #{stateType},
-            MODIFY_DATE = NOW(),
-            MODIFY_IP   = #{modifyIp}
-        WHERE SERIAL_NUMBER = #{serialNumber}
-    </update>
+    <select id="findNextOrderSeq" resultType="int">
+        SELECT IFNULL(MAX(CAST(SUBSTRING(ORDER_NO, 9) AS UNSIGNED)), 0) + 1
+        FROM TR_ORDER
+        WHERE ORDER_NO LIKE CONCAT(#{prefix}, #{dateStr}, '%')
+    </select>
 
     <update id="delete" parameterType="long">
         UPDATE TR_ORDER

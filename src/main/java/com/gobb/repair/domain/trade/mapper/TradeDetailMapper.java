@@ -23,4 +23,6 @@ public interface TradeDetailMapper {
     int updateStatusByOrderId(TradeDetail tradeDetail);
 
     int delete(Long serialNumber);
+
+    int deleteByOrderId(Long commonTradeOrderSerial);
 }

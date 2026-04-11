@@ -1,5 +1,6 @@
 package com.gobb.repair.domain.item.mapper;
 
+import com.gobb.repair.domain.item.dto.BikeItemRequest;
 import com.gobb.repair.domain.item.entity.BikeItem;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface BikeItemMapper {
 
-    List<BikeItem> findAll();
+    List<BikeItem> findAll(BikeItemRequest request);
 
     BikeItem findById(Long serialNumber);
 

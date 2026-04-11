@@ -8,7 +8,7 @@ import java.util.List;
 @Mapper
 public interface BikeItemCdMapper {
 
-    List<BikeItemCd> findAll();
+    List<BikeItemCd> findAll(String useBit);
 
     BikeItemCd findById(Long serialNumber);
 

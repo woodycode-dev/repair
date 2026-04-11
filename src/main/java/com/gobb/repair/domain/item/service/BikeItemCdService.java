@@ -26,8 +26,8 @@ public class BikeItemCdService {
             "memo", "메모"
     );
 
-    public List<BikeItemCd> findAll() {
-        return bikeItemCdMapper.findAll();
+    public List<BikeItemCd> findAll(String useBit) {
+        return bikeItemCdMapper.findAll(useBit);
     }
 
     public BikeItemCd findById(Long serialNumber) {

@@ -2,6 +2,8 @@ package com.gobb.repair.domain.trade.service;
 
 import com.gobb.repair.common.exception.BusinessException;
 import com.gobb.repair.common.util.SummaryUtil;
+import com.gobb.repair.domain.trade.dto.TradeDetailRequest;
+import com.gobb.repair.domain.trade.dto.TradeOrderRequest;
 import com.gobb.repair.domain.trade.entity.TradeDetail;
 import com.gobb.repair.domain.trade.entity.TradeOrder;
 import com.gobb.repair.domain.trade.mapper.TradeDetailMapper;
@@ -9,7 +11,10 @@ import com.gobb.repair.domain.trade.mapper.TradeOrderMapper;
 import com.gobb.repair.domain.log.service.DataLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -40,40 +45,73 @@ public class TradeOrderService {
         return tradeOrder;
     }
 
-    public void insert(TradeOrder tradeOrder) {
-        tradeOrderMapper.insert(tradeOrder);
-        dataLogService.insert(TABLE_NAME, tradeOrder.getSerialNumber(), "I", null, tradeOrder.getRegistIp(), "신규");
-    }
+    @Transactional
+    public void insert(TradeOrderRequest request) {
 
-    public void updateStatus(Long serialNumber, String stateType, String modifyIp) {
-        TradeOrder tradeOrder = findById(serialNumber);
+        // registIp 기본값 처리
+        String registIp = (request.getRegistIp() == null || request.getRegistIp().trim().isEmpty())
+                ? "127.0.0.1" : request.getRegistIp();
 
-        List<String> states = tradeDetailMapper.findAllStateByOrderId(serialNumber);
-        if (states.size() > 1) {
-            throw new BusinessException("주문 항목의 처리 상태가 동일하지 않아 일괄 처리할 수 없습니다.");
-        }
+        // 주문번호 생성 (P/I + yyyyMMdd + 순번)
+        String prefix = "P".equals(request.getProductBit()) ? "I" : "P";
+        String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String orderNo = prefix + dateStr + String.format("%04d", tradeOrderMapper.findNextOrderSeq(dateStr, prefix));
 
-        TradeOrder before = TradeOrder.builder()
-                .stateType(tradeOrder.getStateType())
+        // TradeOrder 생성
+        TradeOrder tradeOrder = TradeOrder.builder()
+                .registIp(registIp)
+                .useBit("Y")
+                .productBit(request.getProductBit())
+                .fromRepairAgent(request.getFromRepairAgent())
+                .fromRepairClient(request.getFromRepairClient())
+                .toRepairAgent(request.getToRepairAgent())
+                .toRepairClient(request.getToRepairClient())
+                .orderNo(orderNo)
+                .orderCost(request.getDetails().stream().mapToInt(TradeDetailRequest::getOrderCost).sum())
+                .buyCost(request.getDetails().stream().mapToInt(TradeDetailRequest::getBuyCost).sum())
+                .stateType("10")
+                .summary(request.getSummary())
+                .tradeType("S")
+                .itemUnit(request.getDetails().stream().mapToInt(TradeDetailRequest::getItemUnit).sum())
+                .memo(request.getMemo())
                 .build();
 
-        tradeOrder.setStateType(stateType);
-        tradeOrder.setModifyIp(modifyIp);
-        tradeOrderMapper.updateStatus(tradeOrder);
+        tradeOrderMapper.insert(tradeOrder);
 
-        TradeDetail tradeDetail = new TradeDetail();
-        tradeDetail.setCommonTradeOrderSerial(serialNumber);
-        tradeDetail.setStateType(stateType);
-        tradeDetail.setModifyIp(modifyIp);
-        tradeDetailMapper.updateStatusByOrderId(tradeDetail);
+        // TradeDetail 등록
+        for (TradeDetailRequest detail : request.getDetails()) {
+            TradeDetail tradeDetail = TradeDetail.builder()
+                    .registIp(registIp)
+                    .useBit("Y")
+                    .productBit(detail.getProductBit())
+                    .productSerial(detail.getProductSerial())
+                    .commonTradeOrderSerial(tradeOrder.getSerialNumber())
+                    .orderNo(orderNo)
+                    .stateType("10")
+                    .tradeItemType(detail.getTradeItemType())
+                    .itemUnit(detail.getItemUnit())
+                    .orderCost(detail.getOrderCost())
+                    .buyCost(detail.getBuyCost())
+                    .memo(detail.getMemo())
+                    .build();
+            tradeDetailMapper.insert(tradeDetail);
+        }
 
-        String summary = SummaryUtil.buildUpdateSummary(before, tradeOrder, FIELD_LABELS);
-        dataLogService.insert(TABLE_NAME, serialNumber, "U", null, modifyIp, summary);
+        // 등록 이력 저장
+        dataLogService.insert(TABLE_NAME, tradeOrder.getSerialNumber(), "I", null, registIp, "신규");
     }
 
+    @Transactional
     public void delete(Long serialNumber) {
         findById(serialNumber);
+
+        // 주문항목 먼저 삭제
+        tradeDetailMapper.deleteByOrderId(serialNumber);
+
+        // 주문서 삭제
         tradeOrderMapper.delete(serialNumber);
+
+        // 삭제 이력 저장
         dataLogService.insert(TABLE_NAME, serialNumber, "C", null, "127.0.0.1", "삭제");
     }
 }

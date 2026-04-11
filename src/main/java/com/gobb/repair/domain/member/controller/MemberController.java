@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@Tag(name = "인증", description = "로그인/로그아웃/토큰 재발급 API")
+@Tag(name = "1. 인증", description = "로그인/로그아웃/토큰 재발급 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -32,8 +32,7 @@ public class MemberController {
 
     @Operation(summary = "Access Token 재발급", description = "Refresh Token으로 새 Access Token 발급")
     @PostMapping("/refresh")
-    public ApiResponse<String> refresh(@RequestBody Map<String, String> body) {
-        String refreshToken = body.get("refreshToken");
+    public ApiResponse<String> refresh(@RequestParam String refreshToken) {
         return ApiResponse.ok(memberService.refreshAccessToken(refreshToken));
     }
 

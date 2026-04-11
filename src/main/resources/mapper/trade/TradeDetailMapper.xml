@@ -131,4 +131,12 @@
         WHERE SERIAL_NUMBER = #{serialNumber}
     </update>
 
+    <update id="deleteByOrderId" parameterType="long">
+        UPDATE TR_ORDER_DTL
+        SET
+            CANCEL_BIT  = 'Y',
+            CANCEL_DATE = NOW()
+        WHERE COMMON_TRADE_ORDER_SERIAL = #{commonTradeOrderSerial}
+    </update>
+
 </mapper>

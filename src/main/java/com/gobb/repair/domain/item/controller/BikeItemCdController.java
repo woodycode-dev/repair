@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "부품분류", description = "부품분류 관련 API (CM_BIKE_ITEM_CD)")
+@Tag(name = "2-1. 부품분류", description = "부품분류 관련 API (CM_BIKE_ITEM_CD)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/bike-item-cd")
@@ -21,8 +21,9 @@ public class BikeItemCdController {
 
     @Operation(summary = "부품분류 목록 조회")
     @GetMapping
-    public ApiResponse<List<BikeItemCd>> findAll() {
-        return ApiResponse.ok(bikeItemCdService.findAll());
+    public ApiResponse<List<BikeItemCd>> findAll(
+            @RequestParam(required = false) String useBit) {
+        return ApiResponse.ok(bikeItemCdService.findAll(useBit));
     }
 
     @Operation(summary = "부품분류 단건 조회")
