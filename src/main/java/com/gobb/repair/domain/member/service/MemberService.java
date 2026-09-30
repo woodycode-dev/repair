@@ -11,6 +11,7 @@ import com.gobb.repair.domain.member.mapper.MemberMapper;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final MemberLogMapper memberLogMapper;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
@@ -39,7 +41,7 @@ public class MemberService {
             throw new BusinessException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        if (!member.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new BusinessException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
